@@ -5,19 +5,19 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	tsmServer "go-task-manager-system"
 	"go-task-manager-system/package/handler"
 	"go-task-manager-system/package/repository"
 	"go-task-manager-system/package/service"
-	"log"
 	"os"
 )
 
 func main() {
 	// env
 	if err := godotenv.Load(); err != nil {
-		log.Fatalf("error occured while getting env variables, err:%s", err.Error())
+		logrus.Fatalf("error occured while getting env variables, err:%s", err.Error())
 	}
 	// db
 	var (
@@ -31,7 +31,7 @@ func main() {
 	fmt.Println(dataSourceName)
 	db, err := sql.Open("postgres", dataSourceName)
 	if err != nil {
-		log.Fatalf("error occured while connecting database: %s", err.Error())
+		logrus.Fatalf("error occured while connecting database: %s", err.Error())
 	}
 	defer db.Close()
 
@@ -47,7 +47,7 @@ func main() {
 	// server
 	server := new(tsmServer.Server)
 	if err := server.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
-		log.Fatalf("Error occured while started http server: %s", err.Error())
+		logrus.Fatalf("Error occured while started http server: %s", err.Error())
 	}
 }
 
