@@ -1,8 +1,12 @@
 package service
 
-import "go-task-manager-system/package/repository"
+import (
+	todo "go-task-manager-system"
+	"go-task-manager-system/package/repository"
+)
 
 type Authorization interface {
+	CreateUser(user todo.User) (uint64, error)
 }
 
 type TodoList interface {
@@ -18,5 +22,7 @@ type Service struct {
 }
 
 func NewService(repos *repository.Repository) *Service {
-	return &Service{}
+	return &Service{
+		Authorization: newAuthService(repos.Authorization),
+	}
 }
