@@ -30,7 +30,7 @@ func NewPostgresDb(c *Config) *sql.DB {
 		logrus.Fatalf("error occured while connecting database: %s", err.Error())
 	}
 
-	if err := db.Ping(); err != nil {
+	if err = db.Ping(); err != nil {
 		panic(err)
 	}
 	fmt.Println("Successfully connected to postgres database!")
