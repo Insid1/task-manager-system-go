@@ -34,6 +34,11 @@ func (s *AuthService) generatePassword(password string) string {
 	return fmt.Sprintf("%x", hash.Sum([]byte(os.Getenv("HASH_SALT"))))
 }
 
+type CustomClaims struct {
+	UserId uint64 `json:"userId"`
+	jwt.RegisteredClaims
+}
+
 func (s *AuthService) GenerateToken(username, pass string) (string, error) {
 	user, err := s.repo.GetUser(username, s.generatePassword(pass))
 
@@ -41,13 +46,27 @@ func (s *AuthService) GenerateToken(username, pass string) (string, error) {
 		return "", err
 	}
 
-	tokenClaims := jwt.MapClaims{
-		"exp":    time.Now().Add(TOKEN_TTL).Unix(),
-		"iat":    time.Now().Unix(),
-		"userId": user.ID,
+	claims := CustomClaims{
+		UserId: user.ID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TOKEN_TTL)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	return token.SignedString([]byte(os.Getenv("TOKEN_SIGNIN_KEY")))
+}
+
+func (s *AuthService) ParseToken(accessToken string) (int, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("TOKEN_SIGNIN_KEY")), nil // todo check with diff value
+	})
+	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
+		return int(claims.UserId), err
+	} else {
+		return 0, err
+	}
 }
