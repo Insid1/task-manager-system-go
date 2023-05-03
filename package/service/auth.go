@@ -60,12 +60,12 @@ func (s *AuthService) GenerateToken(username, pass string) (string, error) {
 	return token.SignedString([]byte(os.Getenv("TOKEN_SIGNIN_KEY")))
 }
 
-func (s *AuthService) ParseToken(accessToken string) (int, error) {
+func (s *AuthService) ParseToken(accessToken string) (uint64, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("TOKEN_SIGNIN_KEY")), nil // todo check with diff value
 	})
 	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
-		return int(claims.UserId), err
+		return claims.UserId, err
 	} else {
 		return 0, err
 	}

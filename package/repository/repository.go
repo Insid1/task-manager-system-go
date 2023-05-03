@@ -12,6 +12,9 @@ type Authorization interface {
 }
 
 type TodoList interface {
+	Create(list todo.TodoList, userId uint64) (uint64, error)
+	GetAll(userId uint64) ([]todo.TodoList, error)
+	GetById(userId uint64, listId uint64) (todo.TodoList, error)
 }
 
 type TodoItem interface {
@@ -26,5 +29,6 @@ type Repository struct {
 func NewRepository(db *sql.DB) *Repository {
 	return &Repository{
 		Authorization: postgres.NewAuthPostgres(db),
+		TodoList:      postgres.NewTodoListPostgres(db),
 	}
 }

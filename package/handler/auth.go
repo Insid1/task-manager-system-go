@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"github.com/gin-gonic/gin"
 	todo "go-task-manager-system"
 	"net/http"
@@ -41,7 +42,10 @@ func (h *Handler) signIn(c *gin.Context) {
 
 	token, err := h.services.Authorization.GenerateToken(input.Email, input.Password)
 
-	if err != nil {
+	if err == sql.ErrNoRows {
+		newErrorResponse(c, http.StatusBadRequest, "user not found")
+		return
+	} else if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
