@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	todo "go-task-manager-system"
+	"strings"
 )
 
 type TodoListPostgres struct {
@@ -76,7 +77,7 @@ func (r *TodoListPostgres) GetAll(userId uint64) ([]todo.TodoList, error) {
 	return lists, err
 }
 
-func (r *TodoListPostgres) GetById(userId uint64, listId uint64) (todo.TodoList, error) {
+func (r *TodoListPostgres) GetById(userId, listId uint64) (todo.TodoList, error) {
 	var list todo.TodoList
 
 	query := fmt.Sprintf(`
@@ -90,4 +91,57 @@ func (r *TodoListPostgres) GetById(userId uint64, listId uint64) (todo.TodoList,
 	row := r.db.QueryRow(query, userId, listId)
 	err := row.Scan(&list.ID, &list.Title, &list.Description)
 	return list, err
+}
+
+func (r *TodoListPostgres) Update(userId, listId uint64, todoList todo.UpdateTodoListInput) (todo.TodoList, error) {
+	var list todo.TodoList
+	values := make([]string, 0)
+	args := make([]interface{}, 0)
+	var argId uint8 = 1
+
+	if todoList.Title != "" {
+		title := fmt.Sprintf("title=$%d", argId)
+		values = append(values, title)
+		args = append(args, todoList.Title)
+		argId++
+	}
+	if todoList.Description != "" {
+		description := fmt.Sprintf("description=$%d", argId)
+		values = append(values, description)
+		args = append(args, todoList.Description)
+		argId++
+	}
+
+	setQuery := strings.Join(values, ", ")
+	query := fmt.Sprintf(`
+		UPDATE %s tl 
+		SET %s 
+		FROM %s ul
+		WHERE tl.id = ul.list_id AND ul.user_id = %d AND tl.id = %d
+		RETURNING tl.id, tl.title, tl.description;
+	`, todoListsTable, setQuery, usersListsTable, userId, listId)
+
+	row := r.db.QueryRow(query, args...)
+
+	err := row.Scan(&list.ID, &list.Title, &list.Description)
+
+	if err != nil {
+		return todo.TodoList{}, err
+	}
+	return list, nil
+}
+
+func (r *TodoListPostgres) Delete(userId, listId uint64) error {
+
+	query := fmt.Sprintf(`
+		DELETE FROM %s tl USING %s ul WHERE tl.id = ul.list_id AND ul.user_id = $1 AND tl.id = $2;
+	`, todoListsTable, usersListsTable)
+
+	res, err := r.db.Exec(query, userId, listId)
+
+	if affectedRows, _ := res.RowsAffected(); affectedRows == 0 {
+		return fmt.Errorf("list for such user has not been found")
+	}
+
+	return err
 }
