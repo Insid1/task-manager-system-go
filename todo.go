@@ -1,5 +1,7 @@
 package todo
 
+import "errors"
+
 type TodoList struct {
 	ID          uint64 `json:"id"`
 	Title       string `json:"title" binding:"required"`
@@ -28,4 +30,11 @@ type ListsItem struct {
 type UpdateTodoListInput struct {
 	Title       string `json:"title" `
 	Description string `json:"description" `
+}
+
+func (i *UpdateTodoListInput) Validate() error {
+	if i.Title == "" && i.Description == "" {
+		return errors.New("no fields provided")
+	}
+	return nil
 }

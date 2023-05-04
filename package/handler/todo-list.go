@@ -19,7 +19,7 @@ func (h *Handler) createList(c *gin.Context) {
 		return
 	}
 
-	todoListId, err := h.services.TodoList.Create(input, userId)
+	todoListId, err := h.services.TodoList.Create(&input, userId)
 
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
@@ -60,7 +60,7 @@ func (h *Handler) getListById(c *gin.Context) {
 
 	list, err := h.services.TodoList.GetById(userId, listId)
 	if err == sql.ErrNoRows {
-		c.JSON(http.StatusNoContent, "")
+		c.Status(http.StatusNotFound)
 		return
 	} else if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
@@ -86,16 +86,24 @@ func (h *Handler) updateList(c *gin.Context) {
 		return
 	}
 
-	list, err := h.services.TodoList.Update(userId, listId, input)
+	err = input.Validate()
+
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = h.services.TodoList.Update(userId, listId, &input)
 
 	if err == sql.ErrNoRows {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
-
+		return
 	} else if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, list)
+
+	c.Status(http.StatusNoContent)
 }
 
 func (h *Handler) deleteList(c *gin.Context) {
@@ -114,7 +122,5 @@ func (h *Handler) deleteList(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]uint64{
-		"id": listId,
-	})
+	c.Status(http.StatusNoContent)
 }

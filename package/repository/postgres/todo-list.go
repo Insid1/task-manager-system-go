@@ -15,7 +15,7 @@ func NewTodoListPostgres(db *sql.DB) *TodoListPostgres {
 	return &TodoListPostgres{db: db}
 }
 
-func (r *TodoListPostgres) Create(list todo.TodoList, userId uint64) (uint64, error) {
+func (r *TodoListPostgres) Create(list *todo.TodoList, userId uint64) (uint64, error) {
 	tx, err := r.db.Begin()
 
 	if err != nil {
@@ -41,7 +41,7 @@ func (r *TodoListPostgres) Create(list todo.TodoList, userId uint64) (uint64, er
 	return listId, tx.Commit()
 }
 
-func (r *TodoListPostgres) GetAll(userId uint64) ([]todo.TodoList, error) {
+func (r *TodoListPostgres) GetAll(userId uint64) (*[]todo.TodoList, error) {
 	var lists []todo.TodoList
 
 	query := fmt.Sprintf(`
@@ -54,7 +54,7 @@ func (r *TodoListPostgres) GetAll(userId uint64) ([]todo.TodoList, error) {
 
 	rows, err := r.db.Query(query, userId)
 	if err != nil {
-		return lists, err
+		return &[]todo.TodoList{}, err
 	}
 
 	defer rows.Close()
@@ -65,7 +65,7 @@ func (r *TodoListPostgres) GetAll(userId uint64) ([]todo.TodoList, error) {
 		var description string
 		err = rows.Scan(&id, &title, &description)
 		if err != nil {
-			return lists, err
+			return &[]todo.TodoList{}, err
 		}
 		lists = append(lists, todo.TodoList{
 			ID:          id,
@@ -74,10 +74,10 @@ func (r *TodoListPostgres) GetAll(userId uint64) ([]todo.TodoList, error) {
 		})
 	}
 	err = rows.Err()
-	return lists, err
+	return &lists, err
 }
 
-func (r *TodoListPostgres) GetById(userId, listId uint64) (todo.TodoList, error) {
+func (r *TodoListPostgres) GetById(userId, listId uint64) (*todo.TodoList, error) {
 	var list todo.TodoList
 
 	query := fmt.Sprintf(`
@@ -90,10 +90,15 @@ func (r *TodoListPostgres) GetById(userId, listId uint64) (todo.TodoList, error)
 
 	row := r.db.QueryRow(query, userId, listId)
 	err := row.Scan(&list.ID, &list.Title, &list.Description)
-	return list, err
+
+	if err != nil {
+		return &todo.TodoList{}, err
+	}
+
+	return &list, err
 }
 
-func (r *TodoListPostgres) Update(userId, listId uint64, todoList todo.UpdateTodoListInput) (todo.TodoList, error) {
+func (r *TodoListPostgres) Update(userId, listId uint64, todoList *todo.UpdateTodoListInput) error {
 	var list todo.TodoList
 	values := make([]string, 0)
 	args := make([]interface{}, 0)
@@ -126,9 +131,9 @@ func (r *TodoListPostgres) Update(userId, listId uint64, todoList todo.UpdateTod
 	err := row.Scan(&list.ID, &list.Title, &list.Description)
 
 	if err != nil {
-		return todo.TodoList{}, err
+		return err
 	}
-	return list, nil
+	return nil
 }
 
 func (r *TodoListPostgres) Delete(userId, listId uint64) error {
