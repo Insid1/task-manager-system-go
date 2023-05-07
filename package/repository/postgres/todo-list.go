@@ -130,10 +130,7 @@ func (r *TodoListPostgres) Update(userId, listId uint64, todoList *todo.UpdateTo
 
 	err := row.Scan(&list.ID, &list.Title, &list.Description)
 
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (r *TodoListPostgres) Delete(userId, listId uint64) error {

@@ -32,6 +32,12 @@ type UpdateTodoListInput struct {
 	Description string `json:"description" `
 }
 
+type UpdateTodoItemInput struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	IsActive    bool   `json:"isActive"`
+}
+
 func (i *UpdateTodoListInput) Validate() error {
 	if i.Title == "" && i.Description == "" {
 		return errors.New("no fields provided")

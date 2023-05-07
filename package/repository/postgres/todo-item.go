@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	todo "go-task-manager-system"
+	"strings"
 )
 
 type TodoItemPostgres struct {
@@ -109,6 +110,45 @@ func (r *TodoItemPostgres) GetById(listId, itemId uint64) (*todo.TodoItem, error
 	}
 
 	return &item, nil
+}
+
+func (r *TodoItemPostgres) Update(listId, itemId uint64, item *todo.UpdateTodoItemInput) error {
+	values := make([]string, 0)
+	args := make([]interface{}, 0)
+	var argId uint8 = 1
+
+	if item.Title != "" {
+		title := fmt.Sprintf("title=$%d", argId)
+		values = append(values, title)
+		args = append(args, item.Title)
+		argId++
+	}
+	if item.Description != "" {
+		description := fmt.Sprintf("description=$%d", argId)
+		values = append(values, description)
+		args = append(args, item.Description)
+		argId++
+	}
+	isActive := fmt.Sprintf("is_active=$%d", argId)
+	values = append(values, isActive)
+	args = append(args, item.IsActive)
+	argId++
+
+	setQuery := strings.Join(values, ", ")
+
+	query := fmt.Sprintf(`
+		UPDATE %s i 
+		SET %s 
+		FROM %s li
+		WHERE i.id = li.item_id AND li.item_id = %d AND li.list_id = %d;
+	`, TodoItemsTable, setQuery, ListsItemsTable, itemId, listId)
+	res, err := r.db.Exec(query, args...)
+
+	if affectedRows, _ := res.RowsAffected(); affectedRows == 0 {
+		return fmt.Errorf("item for such list and user has not been found")
+	}
+
+	return err
 }
 
 func (r *TodoItemPostgres) Delete(listId, itemId uint64) error {

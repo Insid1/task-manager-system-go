@@ -23,6 +23,7 @@ type TodoItem interface {
 	Create(item *todo.TodoItem, listId uint64) (uint64, error)
 	GetAll(listId uint64) (*[]todo.TodoItem, error)
 	GetById(listId, itemId uint64) (*todo.TodoItem, error)
+	Update(listId, itemId uint64, todoItem *todo.UpdateTodoItemInput) error
 	Delete(listId, itemId uint64) error
 }
 

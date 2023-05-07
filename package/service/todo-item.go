@@ -48,6 +48,16 @@ func (s *TodoItemService) GetById(userId, listId, itemId uint64) (*todo.TodoItem
 	return item, nil
 }
 
+func (s *TodoItemService) Update(userId, listId, itemId uint64, todoItem *todo.UpdateTodoItemInput) error {
+	_, err := s.listRepo.GetById(userId, listId)
+	if err != nil {
+		return err
+	}
+
+	err = s.repoItem.Update(listId, itemId, todoItem)
+	return err
+}
+
 func (s *TodoItemService) Delete(userId, listId, itemId uint64) error {
 	_, err := s.listRepo.GetById(userId, listId)
 	if err != nil {
@@ -55,10 +65,6 @@ func (s *TodoItemService) Delete(userId, listId, itemId uint64) error {
 	}
 
 	err = s.repoItem.Delete(listId, itemId)
+	return err
 
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
