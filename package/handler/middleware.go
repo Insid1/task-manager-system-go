@@ -54,13 +54,33 @@ func getIdFromParam(c *gin.Context) (uint64, error) {
 		newErrorResponse(c, http.StatusBadRequest, ERROR_MESSAGE)
 		return 0, fmt.Errorf(ERROR_MESSAGE)
 	}
-	listId, err := strconv.Atoi(listIdAsStr)
+	listId, err := strconv.ParseUint(listIdAsStr, 10, 64)
 
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return 0, err
 	}
 
-	return uint64(listId), nil
+	return listId, nil
 
+}
+
+func getItemIdFromParam(c *gin.Context) (uint64, error) {
+	const ERROR_MESSAGE = "invalid item id"
+
+	ItemIdAsStr := c.Param("item_id")
+
+	if len(ItemIdAsStr) == 0 {
+		newErrorResponse(c, http.StatusBadRequest, ERROR_MESSAGE)
+		return 0, fmt.Errorf(ERROR_MESSAGE)
+	}
+
+	itemId, err := strconv.ParseUint(ItemIdAsStr, 10, 64)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return 0, err
+	}
+
+	return itemId, nil
 }
