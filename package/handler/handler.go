@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"go-task-manager-system/package/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {

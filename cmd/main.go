@@ -1,16 +1,18 @@
 package main
 
 import (
-	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
+	"os"
+
 	tsmServer "go-task-manager-system"
 	"go-task-manager-system/package/handler"
 	"go-task-manager-system/package/repository"
 	"go-task-manager-system/package/repository/postgres"
 	"go-task-manager-system/package/service"
-	"os"
+
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 func main() {

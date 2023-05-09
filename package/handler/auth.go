@@ -2,9 +2,11 @@ package handler
 
 import (
 	"database/sql"
-	"github.com/gin-gonic/gin"
-	todo "go-task-manager-system"
 	"net/http"
+
+	todo "go-task-manager-system"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (h *Handler) signUp(c *gin.Context) {

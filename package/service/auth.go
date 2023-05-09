@@ -3,11 +3,13 @@ package service
 import (
 	"crypto/sha1"
 	"fmt"
-	"github.com/golang-jwt/jwt/v5"
-	todo "go-task-manager-system"
-	"go-task-manager-system/package/repository"
 	"os"
 	"time"
+
+	todo "go-task-manager-system"
+	"go-task-manager-system/package/repository"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 const (
@@ -24,7 +26,7 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 
 func (s *AuthService) CreateUser(user todo.User) (uint64, error) {
 	user.Password = s.generatePassword(user.Password)
-	return s.repo.CreateUser(user)
+	return s.repo.CreateUser(&user)
 }
 
 func (s *AuthService) generatePassword(password string) string {

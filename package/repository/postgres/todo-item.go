@@ -3,8 +3,9 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
-	todo "go-task-manager-system"
 	"strings"
+
+	todo "go-task-manager-system"
 )
 
 type TodoItemPostgres struct {
@@ -137,8 +138,8 @@ func (r *TodoItemPostgres) Update(listId, itemId uint64, item *todo.UpdateTodoIt
 	setQuery := strings.Join(values, ", ")
 
 	query := fmt.Sprintf(`
-		UPDATE %s i 
-		SET %s 
+		UPDATE %s i
+		SET %s
 		FROM %s li
 		WHERE i.id = li.item_id AND li.item_id = %d AND li.list_id = %d;
 	`, TodoItemsTable, setQuery, ListsItemsTable, itemId, listId)

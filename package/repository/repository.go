@@ -2,13 +2,14 @@ package repository
 
 import (
 	"database/sql"
+
 	todo "go-task-manager-system"
 	"go-task-manager-system/package/repository/postgres"
 )
 
 type Authorization interface {
-	CreateUser(user todo.User) (uint64, error)
-	GetUser(username, password string) (todo.User, error)
+	CreateUser(user *todo.User) (uint64, error)
+	GetUser(username, password string) (*todo.User, error)
 }
 
 type TodoList interface {

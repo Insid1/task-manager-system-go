@@ -3,6 +3,7 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
+
 	todo "go-task-manager-system"
 )
 
@@ -14,8 +15,8 @@ func NewAuthPostgres(db *sql.DB) *AuthPostgres {
 	return &AuthPostgres{db: db}
 }
 
-func (r *AuthPostgres) CreateUser(user todo.User) (uint64, error) {
-	var id int
+func (r *AuthPostgres) CreateUser(user *todo.User) (uint64, error) {
+	var id uint64
 	query := fmt.Sprintf("INSERT INTO %s (name, email, password_hash) values ($1, $2, $3) RETURNING id;", usersTable)
 
 	row := r.db.QueryRow(query, user.Name, user.Email, user.Password)
@@ -24,10 +25,10 @@ func (r *AuthPostgres) CreateUser(user todo.User) (uint64, error) {
 		return 0, err
 	}
 
-	return uint64(id), nil
+	return id, nil
 }
 
-func (r *AuthPostgres) GetUser(email, password string) (todo.User, error) {
+func (r *AuthPostgres) GetUser(email, password string) (*todo.User, error) {
 	var user todo.User
 
 	query := fmt.Sprintf(`
@@ -37,8 +38,8 @@ func (r *AuthPostgres) GetUser(email, password string) (todo.User, error) {
 `, usersTable)
 	row := r.db.QueryRow(query, email, password)
 	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Password); err != nil {
-		return todo.User{}, err
+		return nil, err
 	}
 
-	return user, nil
+	return &user, nil
 }
