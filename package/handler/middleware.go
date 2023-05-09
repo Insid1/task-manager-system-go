@@ -2,19 +2,20 @@ package handler
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 const (
-	AUTH_HEADER = "Authorization"
-	USER_CTX    = "userId"
+	authHeader = "Authorization"
+	userCtx    = "userId"
 )
 
 func (h *Handler) userIdentity(c *gin.Context) {
-	header := c.GetHeader(AUTH_HEADER)
+	header := c.GetHeader(authHeader)
 
 	if header == "" {
 		newErrorResponse(c, http.StatusUnauthorized, "empty auth header")
@@ -34,30 +35,30 @@ func (h *Handler) userIdentity(c *gin.Context) {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 	}
 
-	c.Set(USER_CTX, userId)
+	c.Set(userCtx, userId)
 }
 
 func getUserIdFromContext(c *gin.Context) (uint64, error) {
 	const ERROR_MESSAGE = "userid is not found in context"
-	userId, ok := c.Get(USER_CTX)
+	userId, ok := c.Get(userCtx)
+
 	if !ok {
-		newErrorResponse(c, http.StatusBadRequest, ERROR_MESSAGE)
 		return 0, fmt.Errorf(ERROR_MESSAGE)
 	}
+
 	return userId.(uint64), nil
 }
 
 func getIdFromParam(c *gin.Context) (uint64, error) {
 	const ERROR_MESSAGE = "id is not provided"
 	listIdAsStr := c.Param("id")
+
 	if len(listIdAsStr) == 0 {
-		newErrorResponse(c, http.StatusBadRequest, ERROR_MESSAGE)
 		return 0, fmt.Errorf(ERROR_MESSAGE)
 	}
 	listId, err := strconv.ParseUint(listIdAsStr, 10, 64)
 
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return 0, err
 	}
 
@@ -71,14 +72,12 @@ func getItemIdFromParam(c *gin.Context) (uint64, error) {
 	ItemIdAsStr := c.Param("item_id")
 
 	if len(ItemIdAsStr) == 0 {
-		newErrorResponse(c, http.StatusBadRequest, ERROR_MESSAGE)
 		return 0, fmt.Errorf(ERROR_MESSAGE)
 	}
 
 	itemId, err := strconv.ParseUint(ItemIdAsStr, 10, 64)
 
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return 0, err
 	}
 

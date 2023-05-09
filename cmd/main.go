@@ -12,7 +12,6 @@ import (
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
 
 func main() {
@@ -28,21 +27,20 @@ func main() {
 		DbUser:     os.Getenv("DB_USER"),
 		DbPassword: os.Getenv("DB_PASSWORD"),
 	}
-	db := postgres.NewPostgresDb(&dbConfig)
+	db, err := postgres.NewPostgresDb(&dbConfig)
+
+	if err != nil {
+		logrus.Fatalf("Error occured while connecting to database: %s", err.Error())
+	}
 
 	// packages
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
+
 	// server
 	server := new(tsmServer.Server)
-	if err := server.Run(os.Getenv("PORT"), handlers.InitRoutes()); err != nil {
+	if err = server.Run(os.Getenv("PORT"), handlers.InitRoutes()); err != nil {
 		logrus.Fatalf("Error occured while started http server: %s", err.Error())
 	}
-}
-
-func initConfig() error {
-	viper.AddConfigPath("config")
-	viper.SetConfigName("config")
-	return viper.ReadInConfig()
 }

@@ -13,11 +13,13 @@ func (h *Handler) createItem(c *gin.Context) {
 
 	userId, err := getUserIdFromContext(c)
 	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	listId, err := getIdFromParam(c)
 	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -40,11 +42,13 @@ func (h *Handler) createItem(c *gin.Context) {
 func (h *Handler) getAllItems(c *gin.Context) {
 	userId, err := getUserIdFromContext(c)
 	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	listId, err := getIdFromParam(c)
 	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -63,16 +67,19 @@ func (h *Handler) getAllItems(c *gin.Context) {
 func (h *Handler) getItemById(c *gin.Context) {
 	userId, err := getUserIdFromContext(c)
 	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	listId, err := getIdFromParam(c)
 	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	itemId, err := getItemIdFromParam(c)
 	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -91,16 +98,19 @@ func (h *Handler) updateItem(c *gin.Context) {
 
 	userId, err := getUserIdFromContext(c)
 	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	listId, err := getIdFromParam(c)
 	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	itemId, err := getItemIdFromParam(c)
 	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -124,16 +134,19 @@ func (h *Handler) updateItem(c *gin.Context) {
 func (h *Handler) deleteItem(c *gin.Context) {
 	userId, err := getUserIdFromContext(c)
 	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	listId, err := getIdFromParam(c)
 	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	itemId, err := getItemIdFromParam(c)
 	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 

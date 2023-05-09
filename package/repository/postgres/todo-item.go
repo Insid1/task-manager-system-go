@@ -71,7 +71,7 @@ func (r *TodoItemPostgres) GetAll(listId uint64) (*[]todo.TodoItem, error) {
 
 	var items []todo.TodoItem
 
-	for i := 0; rows.Next(); i++ {
+	for rows.Next() {
 		var id uint64
 		var title string
 		var description string

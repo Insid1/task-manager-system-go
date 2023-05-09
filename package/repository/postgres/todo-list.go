@@ -3,8 +3,9 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
-	todo "go-task-manager-system"
 	"strings"
+
+	todo "go-task-manager-system"
 )
 
 type TodoListPostgres struct {
@@ -54,18 +55,18 @@ func (r *TodoListPostgres) GetAll(userId uint64) (*[]todo.TodoList, error) {
 
 	rows, err := r.db.Query(query, userId)
 	if err != nil {
-		return &[]todo.TodoList{}, err
+		return nil, err
 	}
 
 	defer rows.Close()
 
-	for i := 0; rows.Next(); i++ {
+	for rows.Next() {
 		var id uint64
 		var title string
 		var description string
 		err = rows.Scan(&id, &title, &description)
 		if err != nil {
-			return &[]todo.TodoList{}, err
+			return nil, err
 		}
 		lists = append(lists, todo.TodoList{
 			ID:          id,
@@ -119,8 +120,8 @@ func (r *TodoListPostgres) Update(userId, listId uint64, todoList *todo.UpdateTo
 
 	setQuery := strings.Join(values, ", ")
 	query := fmt.Sprintf(`
-		UPDATE %s tl 
-		SET %s 
+		UPDATE %s tl
+		SET %s
 		FROM %s ul
 		WHERE tl.id = ul.list_id AND ul.user_id = %d AND tl.id = %d
 		RETURNING tl.id, tl.title, tl.description;

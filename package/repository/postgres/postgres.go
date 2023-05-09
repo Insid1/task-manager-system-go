@@ -24,16 +24,17 @@ type Config struct {
 	DbPassword string
 }
 
-func NewPostgresDb(c *Config) *sql.DB {
+func NewPostgresDb(c *Config) (*sql.DB, error) {
 	dataSourceName := fmt.Sprintf("host=%s port=%s dbname=%s user=%s  password=%s sslmode=disable", c.Host, c.Port, c.DbName, c.DbUser, c.DbPassword)
 	db, err := sql.Open("postgres", dataSourceName)
 	if err != nil {
-		logrus.Fatalf("error occured while connecting database: %s", err.Error())
+		return nil, err
 	}
 
 	if err = db.Ping(); err != nil {
-		panic(err)
+		return nil, err
+
 	}
-	fmt.Println("Successfully connected to postgres database!")
-	return db
+	logrus.Println("Successfully connected to postgres database!")
+	return db, nil
 }

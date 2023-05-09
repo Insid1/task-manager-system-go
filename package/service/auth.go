@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	TOKEN_TTL = 12 * time.Hour
+	tokenTtl = 12 * time.Hour
 )
 
 type AuthService struct {
@@ -51,7 +51,7 @@ func (s *AuthService) GenerateToken(username, pass string) (string, error) {
 	claims := CustomClaims{
 		UserId: user.ID,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TOKEN_TTL)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenTtl)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
 		},
